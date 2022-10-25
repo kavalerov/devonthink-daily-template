@@ -86,7 +86,13 @@ tell application id "DNtp"
 				set theNewsContent to theNewsContent & "(" & item (i + 1) of myNews & ")   " & return
 			end repeat
 			set myNewsRecord to create record with {name:newsRecordName, content:theNewsContent, type:markdown, tags:theYear & "," & theMonth} in myGroup
+		else
+			set myNewsRecord to item 1 of myRecords
 		end if
+		
+		
+		set theRefURL to reference URL of myNewsRecord
+		set theNewsLink to "[" & newsRecordName & "]" & "(" & theRefURL & ")"
 		
 		set recordName to theYear & "-" & numMonth & "-" & theDay & " " & shortWeekday
 		set myRecords to children of myGroup whose name is recordName and type is markdown
@@ -95,7 +101,7 @@ tell application id "DNtp"
 			
 			set myQuote to my getQuote()
 			set theContent to "# " & theHeadline & return & "<i>" & myQuote & "</i>" & return & return
-			set theContent to theContent & "# Today's headlines: [[" & newsRecordName & "]]" & return & return & "# Journal" & return & return
+			set theContent to theContent & "# Today's headlines: " & theNewsLink & return & return & "# Journal"
 			
 			set myRecord to create record with {name:recordName, content:theContent, type:markdown, tags:theYear & "," & theMonth} in myGroup
 		else -- Record already exists, just add new weather/time header
