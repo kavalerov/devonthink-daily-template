@@ -74,23 +74,28 @@ tell application id "DNtp"
 	try
 		activate
 		set myGroup to create location "/Journal/" & "/" & theYear & "/" & numMonth
+		
+		set newsRecordName to theYear & "-" & numMonth & "-" & theDay & " " & shortWeekday & " - News"
+		set myNewsRecords to children of myGroup whose name is newsRecordName and type is markdown
+		if ((count of myNewsRecords) is 0) then -- Create the document from scratch
+			set theHeadline to (theMonth & space & shortDay & daySuffix & "," & space & longWeekday)
+			set myNews to my getNews()
+			set theNewsContent to "# " & theHeadline & return & return & "# Headlines" & return & return
+			repeat with i from 1 to (count of items of myNews) by 2
+				set theNewsContent to theNewsContent & "[" & item i of myNews & "]"
+				set theNewsContent to theNewsContent & "(" & item (i + 1) of myNews & ")   " & return
+			end repeat
+			set myNewsRecord to create record with {name:newsRecordName, content:theNewsContent, type:markdown, tags:theYear & "," & theMonth} in myGroup
+		end if
+		
 		set recordName to theYear & "-" & numMonth & "-" & theDay & " " & shortWeekday
 		set myRecords to children of myGroup whose name is recordName and type is markdown
 		if ((count of myRecords) is 0) then -- Create the document from scratch
-			if my theLocale is "de" then
-				set theHeadline to (longWeekday & "," & space & shortDay & "." & space & theMonth)
-			else
-				set theHeadline to (theMonth & space & shortDay & daySuffix & "," & space & longWeekday)
-			end if
+			set theHeadline to (theMonth & space & shortDay & daySuffix & "," & space & longWeekday)
 			
 			set myQuote to my getQuote()
-			set myNews to my getNews()
-			set theContent to "# " & theHeadline & return & "<i>" & myQuote & "</i>" & return & return & "# Headlines" & return & return
-			
-			repeat with i from 1 to (count of items of myNews) by 2
-				set theContent to theContent & "[" & item i of myNews & "]"
-				set theContent to theContent & "(" & item (i + 1) of myNews & ")   " & return
-			end repeat
+			set theContent to "# " & theHeadline & return & "<i>" & myQuote & "</i>" & return & return
+			set theContent to theContent & "# Today's headlines: [[" & newsRecordName & "]]" & return & return & "# Journal" & return & return
 			
 			set myRecord to create record with {name:recordName, content:theContent, type:markdown, tags:theYear & "," & theMonth} in myGroup
 		else -- Record already exists, just add new weather/time header
