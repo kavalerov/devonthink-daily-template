@@ -75,16 +75,31 @@ tell application id "DNtp"
 		activate
 		set myGroup to create location "/Journal/" & "/" & theYear & "/" & numMonth
 		
-		set newsRecordName to theYear & "-" & numMonth & "-" & theDay & " " & shortWeekday & " - News"
+		set newsRecordName to theYear & "-" & numMonth & "-" & theDay & " " & shortWeekday & " - Headlines"
 		set myNewsRecords to children of myGroup whose name is newsRecordName and type is markdown
 		if ((count of myNewsRecords) is 0) then -- Create the document from scratch
 			set theHeadline to (theMonth & space & shortDay & daySuffix & "," & space & longWeekday)
-			set myNews to my getNews()
 			set theNewsContent to "# " & theHeadline & return & return & "# Headlines" & return & return
-			repeat with i from 1 to (count of items of myNews) by 2
-				set theNewsContent to theNewsContent & "[" & item i of myNews & "]"
-				set theNewsContent to theNewsContent & "(" & item (i + 1) of myNews & ")   " & return
+			set theNewsContent to theNewsContent & "## New York Times" & return & return
+			set NYTNews to my getNYTNews()
+			repeat with i from 1 to (count of items of NYTNews) by 2
+				set theNewsContent to theNewsContent & "[" & item i of NYTNews & "]"
+				set theNewsContent to theNewsContent & "(" & item (i + 1) of NYTNews & ")   " & return
 			end repeat
+			set theNewsContent to theNewsContent & return & "## Українська Правда" & return & return
+			set UAPNews to my getUkrPravdaNews()
+			repeat with i from 1 to (count of items of UAPNews) by 2
+				set theNewsContent to theNewsContent & "[" & item i of UAPNews & "]"
+				set theNewsContent to theNewsContent & "(" & item (i + 1) of UAPNews & ")   " & return
+			end repeat
+			
+			set theNewsContent to theNewsContent & return & "## Techcrunch" & return & return
+			set TCNews to my getTechCrunchNews()
+			repeat with i from 1 to (count of items of TCNews) by 2
+				set theNewsContent to theNewsContent & "[" & item i of TCNews & "]"
+				set theNewsContent to theNewsContent & "(" & item (i + 1) of TCNews & ")   " & return
+			end repeat
+			
 			set myNewsRecord to create record with {name:newsRecordName, content:theNewsContent, type:markdown, tags:theYear & "," & theMonth} in myGroup
 		else
 			set myNewsRecord to item 1 of myRecords
@@ -137,31 +152,47 @@ on getQuote()
 	end tell
 end getQuote
 
---Get the news headlines
-on getNews()
-	set myNews to {}
+on getNYTNews()
+	set NYTNews to {}
 	tell application id "DNtp"
 		try
 			set getNewsSource to download markup from "feed://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
 			set getNewsFeed to items 1 thru numHeadlines of (get items of feed getNewsSource)
 			repeat with theItems in getNewsFeed
-				set end of myNews to title of theItems
-				set end of myNews to link of theItems
+				set end of NYTNews to title of theItems
+				set end of NYTNews to link of theItems
 			end repeat
+		end try
+		return NYTNews
+	end tell
+end getNYTNews
+
+on getUkrPravdaNews()
+	set UAPNews to {}
+	tell application id "DNtp"
+		try
 			set getNewsSource to download markup from "https://www.pravda.com.ua/rss/view_mainnews/"
 			set getNewsFeed to items 1 thru numHeadlinesUkrPravda of (get items of feed getNewsSource)
 			repeat with theItems in getNewsFeed
-				set end of myNews to title of theItems
-				set end of myNews to link of theItems
+				set end of UAPNews to title of theItems
+				set end of UAPNews to link of theItems
 			end repeat
+		end try
+		return UAPNews
+	end tell
+end getUkrPravdaNews
+
+on getTechCrunchNews()
+	set TCNews to {}
+	tell application id "DNtp"
+		try
 			set getNewsSource to download markup from "https://techcrunch.com/feed/"
 			set getNewsFeed to items 1 thru numHeadlinesHN of (get items of feed getNewsSource)
 			repeat with theItems in getNewsFeed
-				set end of myNews to title of theItems
-				set end of myNews to link of theItems
+				set end of TCNews to title of theItems
+				set end of TCNews to link of theItems
 			end repeat
-			
 		end try
-		return myNews
+		return TCNews
 	end tell
-end getNews
+end getTechCrunchNews
