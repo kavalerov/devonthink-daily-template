@@ -79,21 +79,21 @@ tell application id "DNtp"
 		set myNewsRecords to children of myGroup whose name is newsRecordName and type is markdown
 		if ((count of myNewsRecords) is 0) then -- Create the document from scratch
 			set theHeadline to (theMonth & space & shortDay & daySuffix & "," & space & longWeekday)
-			set theNewsContent to "# " & theHeadline & return & return & "# Headlines" & return & return
-			set theNewsContent to theNewsContent & "## New York Times" & return & return
+			set theNewsContent to "# " & theHeadline & return & return & "## Headlines" & return & return
+			set theNewsContent to theNewsContent & "### New York Times" & return & return
 			set NYTNews to my getNYTNews()
 			repeat with i from 1 to (count of items of NYTNews) by 2
 				set theNewsContent to theNewsContent & "[" & item i of NYTNews & "]"
 				set theNewsContent to theNewsContent & "(" & item (i + 1) of NYTNews & ")   " & return
 			end repeat
-			set theNewsContent to theNewsContent & return & "## Українська Правда" & return & return
+			set theNewsContent to theNewsContent & return & "### Українська Правда" & return & return
 			set UAPNews to my getUkrPravdaNews()
 			repeat with i from 1 to (count of items of UAPNews) by 2
 				set theNewsContent to theNewsContent & "[" & item i of UAPNews & "]"
 				set theNewsContent to theNewsContent & "(" & item (i + 1) of UAPNews & ")   " & return
 			end repeat
 			
-			set theNewsContent to theNewsContent & return & "## Techcrunch" & return & return
+			set theNewsContent to theNewsContent & return & "### Techcrunch" & return & return
 			set TCNews to my getTechCrunchNews()
 			repeat with i from 1 to (count of items of TCNews) by 2
 				set theNewsContent to theNewsContent & "[" & item i of TCNews & "]"
@@ -116,7 +116,7 @@ tell application id "DNtp"
 			
 			set myQuote to my getQuote()
 			set theContent to "# " & theHeadline & return & "<i>" & myQuote & "</i>" & return & return
-			set theContent to theContent & "# Today's headlines: " & theNewsLink & return & return & "# Journal"
+			set theContent to theContent & "## Today's headlines: " & theNewsLink & return & return & "# Journal"
 			
 			set myRecord to create record with {name:recordName, content:theContent, type:markdown, tags:theYear & "," & theMonth} in myGroup
 		else -- Record already exists, just add new weather/time header
@@ -124,7 +124,7 @@ tell application id "DNtp"
 		end if
 		
 		set theContent to plain text of myRecord
-		set plain text of myRecord to theContent & return & return & "## " & theTime & return & "- "
+		set plain text of myRecord to theContent & return & return & "### " & theTime & return & "- "
 		
 		open tab for record myRecord
 	on error errMsg number errNum
